@@ -1,0 +1,110 @@
+import java.util.*;
+
+public class printersolution {
+    public static void main(String[] args) {
+        int bufferSize = 2;
+        int capacities = 10;
+        int[] documents = new int[]{7, 4, 5, 6};
+
+        int output = printersolution.queuePrinter(bufferSize, capacities, documents);
+        System.out.println(output);
+    }
+    public static int queuePrinter(int bufferSize, int capacities, int[] documents) {
+        Queue<Integer> q = new LinkedList<>();
+        int count = 1;
+        for(int i = 0; i<bufferSize-1; i++) {
+            q.add(0);
+        }
+        q.add(documents[0]);
+        documents = Arrays.copyOfRange(documents, 1, documents.length);
+
+        while(documents.length !=0 || (q.stream().mapToInt(n->n).sum() !=0)) {
+            int sum = q.stream().mapToInt(n->n).sum();
+            if(documents.length!=0) {//대기열이 있는 경우
+                if(sum+documents[0]<=capacities) {//지금 들어갈 수 있다.
+                    q.poll();
+                    q.add(documents[0]);
+                    documents = Arrays.copyOfRange(documents, 1, documents.length);
+                    count++;
+                }
+                else {//지금 들어갈 수 없지만
+                    q.poll();
+                    sum = q.stream().mapToInt(n->n).sum();
+                    if(sum+documents[0] <= capacities) {//앞에 문서가 빠지는 다음 타임에 들어갈 수 있으면
+                        q.add(documents[0]);
+                        documents = Arrays.copyOfRange(documents, 1, documents.length);
+                        count++;
+                    }
+                    else {//앞의 문서가 빠지는 다음 타임에 들어갈 수 없다면
+                        q.add(0);
+                        count++;
+                    }
+                }
+            }
+            else{//대기열이 없는 경우
+                q.poll();
+                q.add(0);
+                count++;
+            }
+        }
+        return count;
+//        //결과를 담을 변수를 선언 초기화합니다.
+//        int count = 0;
+//
+//        //인쇄 환경을 담을 큐를 선언합니다. 큐는 추상 인터페이스로, LinkedList, 우선순위큐로 구현할 수 있습니다.
+//        Queue<Integer> queue = new LinkedList<>();
+//
+//        //선언한 큐를 0으로 채워줍니다.
+//        for(int i = 0; i < bufferSize; i++) {
+//            queue.add(0);
+//        }
+//
+//        //첫 시작은 초기값을 빼주고, 0번 문서를 넣어줍니다. 이후 결과 1 증가
+//        queue.poll();
+//        queue.add(documents[0]);
+//        documents = Arrays.copyOfRange(documents, 1, documents.length);//문서를 하나 지워줍니다.(배열 줄이기)
+//        count++;
+//
+//        //반복을 시작합니다. (더이상 문서가 없을 경우 && !!!!중요!!!! 대기열이 존재하지 않는 경우) -> 멈춰야 합니다.
+//        while(documents.length != 0 || (queue.stream().reduce(0, Integer::sum) != 0)) {
+//            if(documents.length != 0) { //대기중인 문서가 남은 경우
+//                int sum = queue.stream().reduce(0, Integer::sum) + documents[0];
+//                if(sum > capacities) {//작업중인 문서와, 남은 문서중 가장 처음 문서의 크기가 capacities보다 큰 경우
+//
+//                    queue.poll();
+//                    sum = queue.stream().reduce(0, Integer::sum) + documents[0];
+//
+//                    if(sum <= capacities) {//문서가 제거되고, 남은 대기열의 첫번째 문서를 포함했을때 수용이 가능하다면,
+//                        queue.add(documents[0]);
+//                        documents = Arrays.copyOfRange(documents, 1, documents.length);//문서를 하나 지워줍니다.(배열 줄이기)
+//                        count++;
+//                    } else { //문서가 제거되고, 남은 대기열의 첫번째 문서를 포함했을때 수용이 불가능하다면, (if(sum > capacities))
+//                        queue.add(0);
+//                        count++;
+//                    }
+//                } else { //작업중인 문서와, 남은 문서중 가장 처음 문서의 크기가 capacities보다 작은 경우
+//                    queue.poll();
+//                    queue.add(documents[0]);
+//                    documents = Arrays.copyOfRange(documents, 1, documents.length);//문서를 하나 지워줍니다.(배열 줄이기)
+//                    count++;
+//                }
+//            }else { //대기중인 문서가 없을 경우
+//                queue.poll();
+//                queue.add(0);
+//                count++;
+//            }
+//        }
+//        return count;
+    }
+}
+//반복을 시작합니다. (더이상 문서가 없을 경우 && !!!!중요!!!! 대기열이 존재하지 않는 경우) -> 멈춰야 합니다.
+    //대기중인 문서가 남은 경우
+        //작업중인 문서와, 남은 문서중 가장 처음 문서의 크기의 합이 capacities보다 큰 경우
+            //문서가 제거되고, 남은 대기열의 첫번째 문서를 포함했을때 수용이 가능하다면,
+                //(해야할일) 큐에서 하나 제거, 대기열에서 빼와서 큐에 추가, count ++
+            //문서가 제거되고, 남은 대기열의 첫번째 문서를 포함했을때 수용이 불가능하다면, (if(sum > capacities))
+                //(해야할일) 큐에서 하나 제거, 0을 넣어주기, count ++
+        //작업중인 문서와, 남은 문서중 가장 처음 문서의 크기의 합이 capacities보다 작은 경우
+            //(해야할일) 큐에서 하나 제거, 대기열에서 빼와서 큐에 추가, count ++
+    //대기중인 문서가 없을 경우
+        //(해야할일)큐에서 하나 빼기, 큐에 0 넣어주기 count ++
